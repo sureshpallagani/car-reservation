@@ -1,0 +1,302 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Car Rental Reservation API",
+    "description": "REST API for managing car inventory and reservations",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Support"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "Development Server"
+    },
+    {
+      "url": "https://api.example.com",
+      "description": "Production Server"
+    }
+  ],
+  "paths": {
+    "/inventory/availability": {
+      "get": {
+        "tags": [
+          "Inventory"
+        ],
+        "summary": "Check car availability",
+        "description": "Check if a car of the specified type is available for the given date range",
+        "operationId": "checkAvailability",
+        "parameters": [
+          {
+            "name": "carType",
+            "in": "query",
+            "description": "Type of car to check availability for",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/CarType"
+            }
+          },
+          {
+            "name": "startDateTime",
+            "in": "query",
+            "description": "Start date and time for the reservation in ISO 8601 format",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2026-06-10T10:00:00"
+            }
+          },
+          {
+            "name": "days",
+            "in": "query",
+            "description": "Number of days for the reservation",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "example": 3
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Availability status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "Available",
+                    "Not Available"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/inventory/cars": {
+      "get": {
+        "tags": [
+          "Inventory"
+        ],
+        "summary": "Get available cars",
+        "description": "Get list of available SEDAN cars for the next day",
+        "operationId": "getAvailableCars",
+        "responses": {
+          "200": {
+            "description": "List of available cars",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Available cars: 1 (SEDAN)"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reservations": {
+      "post": {
+        "tags": [
+          "Reservations"
+        ],
+        "summary": "Create a new reservation",
+        "description": "Create a new car reservation for the specified car type and dates",
+        "operationId": "createReservation",
+        "requestBody": {
+          "description": "Reservation request details",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReservationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Reservation created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReservationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid reservation request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No car available for the requested period",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CarType": {
+        "type": "string",
+        "description": "Type of car",
+        "enum": [
+          "SEDAN",
+          "SUV",
+          "VAN"
+        ]
+      },
+      "Car": {
+        "type": "object",
+        "description": "Car entity",
+        "properties": {
+          "carId": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Unique identifier for the car",
+            "example": 1
+          },
+          "carType": {
+            "$ref": "#/components/schemas/CarType"
+          }
+        },
+        "required": [
+          "carId",
+          "carType"
+        ]
+      },
+      "ReservationRequest": {
+        "type": "object",
+        "description": "Request to create a new reservation",
+        "properties": {
+          "carType": {
+            "$ref": "#/components/schemas/CarType"
+          },
+          "startDateTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Start date and time for the reservation in ISO 8601 format",
+            "example": "2026-06-10T10:00:00"
+          },
+          "numberOfDays": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of days for the reservation",
+            "example": 3
+          }
+        },
+        "required": [
+          "carType",
+          "startDateTime",
+          "numberOfDays"
+        ]
+      },
+      "ReservationResponse": {
+        "type": "object",
+        "description": "Response containing reservation details",
+        "properties": {
+          "reservationId": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Unique identifier for the reservation",
+            "example": 1001
+          },
+          "carId": {
+            "type": "integer",
+            "format": "int32",
+            "description": "ID of the reserved car",
+            "example": 1
+          },
+          "carType": {
+            "$ref": "#/components/schemas/CarType"
+          },
+          "startDateTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Start date and time of the reservation",
+            "example": "2026-06-10T10:00:00"
+          },
+          "endDateTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "End date and time of the reservation",
+            "example": "2026-06-13T10:00:00"
+          }
+        },
+        "required": [
+          "reservationId",
+          "carId",
+          "carType",
+          "startDateTime",
+          "endDateTime"
+        ]
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "description": "Error response",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Error message",
+            "example": "No car available for the requested period"
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "description": "HTTP status code",
+            "example": 404
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the error occurred"
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Inventory",
+      "description": "Operations related to car inventory and availability"
+    },
+    {
+      "name": "Reservations",
+      "description": "Operations related to car reservations"
+    }
+  ]
+}
