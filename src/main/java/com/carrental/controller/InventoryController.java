@@ -14,6 +14,8 @@ import com.carrental.service.InventoryService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
@@ -31,7 +33,20 @@ public class InventoryController {
 
     @Operation(
             summary = "Check car availability",
-            description = "Check if a car of the specified type is available for the given period"
+            description = "Check if a car of the specified type is available for the given period",
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "200",
+                            description = "Availability status",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    examples = {
+                                            @ExampleObject(name = "availableExample", value = "Available"),
+                                            @ExampleObject(name = "notAvailableExample", value = "Not Available")
+                                    }
+                            )
+                    )
+            }
     )
     @GetMapping("/availability")
     public ResponseEntity<String> availability(
@@ -58,7 +73,20 @@ public class InventoryController {
 
     @Operation(
             summary = "Get available cars",
-            description = "Get list of available cars for the next day"
+            description = "Get list of available cars for the next day",
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "200",
+                            description = "Available cars summary",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    examples = {
+                                            @ExampleObject(name = "availableCarsExample", value = "Available cars: 1 (SEDAN)"),
+                                            @ExampleObject(name = "noCarsExample", value = "Available cars: None")
+                                    }
+                            )
+                    )
+            }
     )
     @GetMapping("/cars")
     public ResponseEntity<String> cars() {

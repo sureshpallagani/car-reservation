@@ -178,4 +178,28 @@ class InventoryServiceTests {
         assertTrue(available.isPresent());
         assertEquals(1, available.get().getCarId());
     }
+
+    @Test
+    @DisplayName("should return available car when reservation ends at requested start")
+    void testFindAvailableCarWithAdjacentReservation() {
+        Car sedan = new Car(1, CarType.SEDAN);
+        Reservation adjacent = new Reservation(
+                100,
+                sedan,
+                startDate.minusDays(5),
+                startDate);
+
+        when(carRepository.findByType(CarType.SEDAN))
+                .thenReturn(List.of(sedan));
+        when(reservationRepository.findByCarId(1))
+                .thenReturn(List.of(adjacent));
+
+        Optional<Car> available = inventoryService.findAvailableCar(
+                CarType.SEDAN,
+                startDate,
+                endDate);
+
+        assertTrue(available.isPresent());
+        assertEquals(1, available.get().getCarId());
+    }
 }

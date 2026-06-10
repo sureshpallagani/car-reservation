@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -184,5 +185,24 @@ class ReservationServiceTests {
                 CarType.SEDAN,
                 startDate,
                 startDate.plusDays(3));
+    }
+
+    @Test
+    @DisplayName("should return all reservations from repository")
+    void testGetAllReservations() {
+        Reservation savedReservation = new Reservation(
+                1001,
+                availableCar,
+                startDate,
+                startDate.plusDays(3));
+
+        when(reservationRepository.findAll())
+                .thenReturn(List.of(savedReservation));
+
+        var reservations = reservationService.getAllReservations();
+
+        assertEquals(1, reservations.size());
+        assertEquals(1001, reservations.get(0).getReservationId());
+        verify(reservationRepository, times(1)).findAll();
     }
 }

@@ -57,4 +57,8 @@ public class ReservationService {
 
         return reservation;
     }
+
+    public java.util.List<Reservation> getAllReservations() {
+        return reservationRepository.findAll();
+    }
 }
